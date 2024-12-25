@@ -8,6 +8,9 @@ import Animated, {
   withSpring,
   withDelay,
   useAnimatedStyle,
+  withRepeat,
+  withTiming,
+  ReduceMotion,
 } from "react-native-reanimated";
 import { Pressable, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -16,14 +19,24 @@ import { Gesture, GestureDetector } from "react-native-gesture-handler";
 function AnimatedModel(props) {
   const mesh = React.useRef();
   const currentOffset = useSharedValue(0);
+  // const currentScale = useSharedValue(100);
+ 
   useFrame((state, delta) => {
     if (props.offset.value !== currentOffset.value) {
       mesh.current.position.x = props.offset.value;
       currentOffset.value = props.offset.value;
     }
+    // if (props.scaleAnimation.value !== currentScale.value) {
+    //   mesh.current.scale.x = props.scaleAnimation.value / 100;
+    //   mesh.current.scale.y = props.scaleAnimation.value / 100;
+    //   mesh.current.scale.z = props.scaleAnimation.value / 100;
+    //   currentScale.value = props.scaleAnimation.value;
+    // }
+   
+
   });
   return (
-    <mesh {...props} ref={mesh} position={[0, -1, 0]}>
+    <mesh scale={1} {...props} ref={mesh} position={[0, -1, 0]}>
       <Model rotation={[1, 1.6, 0]} scale={0.0018} />
     </mesh>
   );
@@ -33,9 +46,16 @@ export default function Index() {
   const firstLocation = useSharedValue(0);
   const currentIndex = useSharedValue(0);
 
-  const changeOffset = (value) => {
-    currentIndex.value = withSpring(value);
-  };
+  // DISABLED ANIMATION FOR TOO MUCH DROP IN FPS
+  // const scaleAnimation = useSharedValue(100);
+
+  // scaleAnimation.value = withRepeat(
+  //   withTiming(110, { duration: 1000 }),
+  //   -1,
+  //   true,
+  //   () => {},
+  //   ReduceMotion.System
+  // );
 
   const swipe = Gesture.Fling()
     .onBegin((event) => {
@@ -53,7 +73,7 @@ export default function Index() {
       // console.log("Swiped RIGHT | currentIndex: ", currentIndex.value);
       if (Math.floor(currentIndex.value) >= 1) return;
       currentIndex.value = withSpring(Math.floor(currentIndex.value) + 1);
-    });
+    }).runOnJS(true);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -64,7 +84,10 @@ export default function Index() {
             <pointLight position={[10, 10, 10]} decay={0} intensity={Math.PI} />
 
             <Suspense fallback={null}>
-              <AnimatedModel offset={currentIndex} />
+              <AnimatedModel
+                offset={currentIndex}
+                // scaleAnimation={scaleAnimation}
+              />
             </Suspense>
           </Canvas>
         </Animated.View>

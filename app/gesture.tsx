@@ -37,13 +37,13 @@ export default function GesturePage() {
     .onFinalize((event) => {
       if (firstLocation.value - event.x > 0) {
         //LEFT
-        console.log("Swiped LEFT");
+        // console.log("Swiped LEFT");
         if (currentIndex.value === -1) return;
         currentIndex.value -= 1;
         return;
       }
       //RIGHT
-      console.log("Swiped RIGHT");
+      // console.log("Swiped RIGHT");
       if (currentIndex.value === 1) return;
       currentIndex.value += 1;
     });

@@ -44,13 +44,13 @@ export default function Index() {
     .onFinalize((event) => {
       if (firstLocation.value - event.x > 0) {
         //LEFT
-        console.log("Swiped LEFT | currentIndex: ", currentIndex.value);
+        // console.log("Swiped LEFT | currentIndex: ", currentIndex.value);
         if (Math.floor(currentIndex.value) <= -1) return;
         currentIndex.value = withSpring(Math.floor(currentIndex.value) - 1);
         return;
       }
       //RIGHT
-      console.log("Swiped RIGHT | currentIndex: ", currentIndex.value);
+      // console.log("Swiped RIGHT | currentIndex: ", currentIndex.value);
       if (Math.floor(currentIndex.value) >= 1) return;
       currentIndex.value = withSpring(Math.floor(currentIndex.value) + 1);
     });

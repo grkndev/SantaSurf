@@ -11,6 +11,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { Pressable, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 
 function AnimatedModel(props) {
   const mesh = React.useRef();
@@ -22,58 +23,52 @@ function AnimatedModel(props) {
     }
   });
   return (
-    <mesh {...props} ref={mesh}>
+    <mesh {...props} ref={mesh} position={[0, -1, 0]}>
       <Model rotation={[1, 1.6, 0]} scale={0.0018} />
     </mesh>
   );
 }
 
 export default function Index() {
-  const offset = useSharedValue(0);
+  const firstLocation = useSharedValue(0);
+  const currentIndex = useSharedValue(0);
+
   const changeOffset = (value) => {
-    offset.value = withSpring(value);
+    currentIndex.value = withSpring(value);
   };
+
+  const swipe = Gesture.Fling()
+    .onBegin((event) => {
+      firstLocation.value = event.x;
+    })
+    .onFinalize((event) => {
+      if (firstLocation.value - event.x > 0) {
+        //LEFT
+        console.log("Swiped LEFT | currentIndex: ", currentIndex.value);
+        if (Math.floor(currentIndex.value) <= -1) return;
+        currentIndex.value = withSpring(Math.floor(currentIndex.value) - 1);
+        return;
+      }
+      //RIGHT
+      console.log("Swiped RIGHT | currentIndex: ", currentIndex.value);
+      if (Math.floor(currentIndex.value) >= 1) return;
+      currentIndex.value = withSpring(Math.floor(currentIndex.value) + 1);
+    });
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <View className="flex flex-col items-center justify-center">
-        <View className="flex flex-row items-center justify-around w-full p-4">
-          <TouchableOpacity
-            onPress={() => {
-              changeOffset(-1);
-            }}
-            className="py-3 px-6 bg-zinc-300 flex items-center justify-center rounded-xl"
-          >
-            <Text>LEFT</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              changeOffset(0);
-            }}
-            className="py-3 px-6 bg-zinc-300 flex items-center justify-center rounded-xl"
-          >
-            <Text>CENTER</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              changeOffset(1);
-            }}
-            className="py-3 px-6 bg-zinc-300 flex items-center justify-center rounded-xl"
-          >
-            <Text>RIGHT</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-      <Animated.View className={"flex-1 flex "}>
-        <Canvas>
-          <ambientLight />
-          <pointLight position={[10, 10, 10]} decay={0} intensity={Math.PI} />
+      <GestureDetector gesture={swipe}>
+        <Animated.View className={"flex-1 flex "}>
+          <Canvas>
+            <ambientLight />
+            <pointLight position={[10, 10, 10]} decay={0} intensity={Math.PI} />
 
-          <Suspense fallback={null}>
-            <AnimatedModel offset={offset} />
-          </Suspense>
-        </Canvas>
-      </Animated.View>
+            <Suspense fallback={null}>
+              <AnimatedModel offset={currentIndex} />
+            </Suspense>
+          </Canvas>
+        </Animated.View>
+      </GestureDetector>
     </SafeAreaView>
   );
 }

@@ -19,6 +19,7 @@ export function Game() {
         currentIndex.value = withSpring(Math.floor(currentIndex.value) - 1);
         return;
       }
+      
       if (Math.floor(currentIndex.value) >= 1) return;
       currentIndex.value = withSpring(Math.floor(currentIndex.value) + 1);
     })
